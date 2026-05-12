@@ -20,6 +20,8 @@ body_parts = []
 for path in md_files:
     with open(path, encoding="utf-8") as f:
         text = f.read()
+    # Process h3: only keep content before first space
+    text = re.sub(r'^### ([^ ]+) .*$', r'### \1', text, flags=re.MULTILINE)
     # Replace [字] with <ins>字</ins> and (字) with <del>字</del>
     converted = md.convert(text)
     converted = re.sub(r'\[([^\]]+)\]', r'<ins>\1</ins>', converted)
@@ -38,24 +40,22 @@ html = f"""<!DOCTYPE html>
 <style>
   @page {{
     size: A4;
-    margin: 20mm 15mm;
+    margin: 10mm;
   }}
   body {{
     font-family: "Noto Sans CJK SC", "Noto Sans SC",
                  "Plangothic P1", "遍黑体P1",
                  "Plangothic P2", "遍黑体P2",
                  sans-serif;
-    font-size: 14pt;
-    line-height: 1.8;
-    color: #111;
+    font-size: 12pt;
+    line-height: 1.0;
   }}
   h1 {{
     font-size: 18pt;
     font-weight: normal;
     page-break-before: always;
-    border-bottom: 1px solid #333;
+    border-bottom: 0.5px solid #333;
     padding-bottom: 4pt;
-    margin-top: 0;
   }}
   h1:first-of-type {{
     page-break-before: avoid;
@@ -63,18 +63,22 @@ html = f"""<!DOCTYPE html>
   h2 {{
     font-size: 14pt;
     font-weight: normal;
-    margin-top: 1.2em;
-    border-bottom: 1px solid #333;
+    padding-bottom: 0.1em;
+    margin-bottom: 0.1em;
+    border-bottom: 0.5px solid #333;
   }}
   h3 {{
-    font-size: 12pt;
+    font-size: 8pt;
     font-weight: normal;
-  }}
-  h3::before {{
-    content: "○";
+    display: inline-block;
+    background-color: #f0f0f0;
+    border: 0.5px solid #000;
+    padding: 2pt;
+    margin-top: 0.5em;
+    margin-bottom: 0.1em;
   }}
   p {{
-    text-indent: 0;
+    margin: 0;
   }}
   del {{
     color: #bbb;
@@ -101,13 +105,13 @@ html = f"""<!DOCTYPE html>
 """
 
 # ── 4. Write HTML ─────────────────────────────────────────────────────────────
-html_path = "集韻.html"
+html_path = "jiyun.html"
 with open(html_path, "w", encoding="utf-8") as f:
     f.write(html)
 print(f"HTML written → {html_path}")
 
 # ── 5. Convert to PDF ─────────────────────────────────────────────────────────
-pdf_path = "集韻.pdf"
+pdf_path = "jiyun.pdf"
 print("Converting to PDF (this may take a while)…")
 weasyprint.HTML(filename=html_path).write_pdf(pdf_path)
 print(f"PDF written  → {pdf_path}")

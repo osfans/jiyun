@@ -17,7 +17,7 @@ for path in md_files:
         parts.append(f.read())
 
 # Write merged file
-output_path = "集韻.md"
+output_path = "jiyun.md"
 with open(output_path, "w", encoding="utf-8") as f:
     f.write("\n".join(parts))
 

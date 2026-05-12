@@ -1,0 +1,33 @@
+name: Deploy PDF
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to create/update releases and tags
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+
+      - name: Install Fonts
+        run: |
+          sudo apt install -y p7zip-full fonts-noto-cjk-extra
+          python -m pip install markdown WeasyPrint
+          wget -c https://github.com/Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project/releases/download/V2.9.5792/Plangothic-OTF-V2.9.5792.7z -O Plangothic-OTF.7z
+          7z x Plangothic-OTF.7z -o$HOME/.fonts
+          fc-cache -f -v
+
+      - name: Merge MarkDown
+        run: python merge.py
+
+      - name: Generate PDF
+        run: python build.py
+
+      - name: Deploy PDF
+        uses: 'marvinpinto/action-automatic-releases@latest'
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: pdf
+          prerelease: false
+          title: '集韻PDF'
+          files: jiyun.*

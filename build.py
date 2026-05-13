@@ -4,6 +4,7 @@
 import glob
 import os
 import re
+from datetime import datetime, timezone, timedelta
 import markdown
 import weasyprint
 
@@ -22,9 +23,12 @@ for path in md_files:
         text = f.read()
     # Process h3: only keep content before first space
     text = re.sub(r'^### ([^ ]+) .*$', r'### \1', text, flags=re.MULTILINE)
-    # Replace [字] with <ins>字</ins> and (字) with <del>字</del>
     converted = md.convert(text)
+    # Replace [字] with <ins>字</ins>
     converted = re.sub(r'\[([^\]]+)\]', r'<ins>\1</ins>', converted)
+    # Convert (IDS) to superscript (IDS starts with ⿰-⿻)
+    converted = re.sub(r'\(([⿰-⿿〾][^\)]+)\)', r'<sup class="ids">\1</sup>', converted)
+    # Other () becomes <del>
     converted = re.sub(r'\(([^\)]+)\)', r'<del>\1</del>', converted)
     body_parts.append(converted)
     md.reset()
@@ -32,50 +36,58 @@ for path in md_files:
 body = "\n".join(body_parts)
 
 # ── 3. Wrap in full HTML with CJK-friendly CSS ───────────────────────────────
+tz_cst = timezone(timedelta(hours=8))
+created = datetime.now(tz_cst).strftime("%Y-%m-%dT%H:%M:%S+08:00")
 html = f"""<!DOCTYPE html>
-<html lang="zh">
+<html lang="kr">
 <head>
 <meta charset="utf-8">
+<meta name="author" content="https://github.com/osfans/jiyun">
+<meta name="dcterms.created" content="{created}">
 <title>集韻</title>
 <style>
   @page {{
     size: A4;
-    margin: 10mm;
+    margin: 1mm;
   }}
   body {{
-    font-family: "Noto Sans CJK SC", "Noto Sans SC",
+    font-family: "Noto Sans CJK KR",
                  "Plangothic P1", "遍黑体P1",
                  "Plangothic P2", "遍黑体P2",
                  sans-serif;
-    font-size: 12pt;
-    line-height: 1.0;
+    font-weight: normal;
+    font-size: 32pt;
+    line-height: 1.1;
+  }}
+  h1, h2, h3 {{
+    font-weight: normal;
+    margin-top: 0.4em;
+    margin-bottom: 0.1em;
+    padding-bottom: 0.1em;
+    border-bottom: 0.5px solid #333;
   }}
   h1 {{
-    font-size: 18pt;
-    font-weight: normal;
+    font-size: 1.2em;
     page-break-before: always;
-    border-bottom: 0.5px solid #333;
-    padding-bottom: 4pt;
   }}
   h1:first-of-type {{
     page-break-before: avoid;
   }}
   h2 {{
-    font-size: 14pt;
-    font-weight: normal;
-    padding-bottom: 0.1em;
-    margin-bottom: 0.1em;
-    border-bottom: 0.5px solid #333;
+    font-size: 1em;
+  }}
+  h2:first-of-type::before {{
+    content: "";
+  }}
+  h2::before {{
+    content: "○";
   }}
   h3 {{
-    font-size: 8pt;
-    font-weight: normal;
+    font-size: 0.7em;
     display: inline-block;
     background-color: #f0f0f0;
-    border: 0.5px solid #000;
-    padding: 2pt;
-    margin-top: 0.5em;
-    margin-bottom: 0.1em;
+    border: 0.5px solid black;
+    padding: 0.1em;
   }}
   p {{
     margin: 0;
@@ -84,17 +96,17 @@ html = f"""<!DOCTYPE html>
     color: #bbb;
   }}
   code {{
-    font-family: "Noto Sans CJK SC", "Noto Sans SC",
+    font-family: "Noto Sans CJK KR", "Noto Sans",
                  "Plangothic P1", "遍黑体P1",
                  "Plangothic P2", "遍黑体P2",
                  sans-serif;
-    font-size: 8pt;
+    font-size: 0.7em;
+    color: #8A511C;
   }}
-  code::before {{
-    content: "（";
-  }}
-  code::after {{
-    content: "）";
+  sup.ids {{
+    font-size: 0.6em;
+    color: #666;
+    vertical-align: super;
   }}
 </style>
 </head>
@@ -103,6 +115,7 @@ html = f"""<!DOCTYPE html>
 </body>
 </html>
 """
+
 
 # ── 4. Write HTML ─────────────────────────────────────────────────────────────
 html_path = "jiyun.html"

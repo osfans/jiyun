@@ -15,6 +15,8 @@ jobs:
           python -m pip install markdown WeasyPrint
           wget -c https://github.com/Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project/releases/download/V2.9.5792/Plangothic-OTF-V2.9.5792.7z -O Plangothic-OTF.7z
           7z x Plangothic-OTF.7z -o$HOME/.fonts
+          wget -P$HOME/.fonts https://github.com/osfans/bjjs/raw/refs/heads/master/fonts/FSung-F.ttf
+          wget -P$HOME/.fonts https://github.com/osfans/bjjs/raw/refs/heads/master/fonts/FSung-X.ttf
           fc-cache -f -v
 
       - name: Merge MarkDown

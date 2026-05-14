@@ -54,6 +54,7 @@ html = f"""<!DOCTYPE html>
     font-family: "Noto Sans CJK KR",
                  "Plangothic P1", "遍黑体P1",
                  "Plangothic P2", "遍黑体P2",
+                 "FSung-F", "FSung-X",
                  sans-serif;
     font-weight: normal;
     font-size: 32pt;

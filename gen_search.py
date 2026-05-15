@@ -130,7 +130,7 @@ HTML_TEMPLATE = """\
 body {{
   font-family: "Noto Serif CJK TC", "Source Han Serif TC",
                "Noto Serif SC", "Source Han Serif SC",
-               "FZSong", serif;
+               "WenJin Mincho Plane 0", "WenJin Mincho Plane 2", "WenJin Mincho Plane 3", "FSung-F", "FSung-X", serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
